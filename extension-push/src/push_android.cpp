@@ -476,6 +476,7 @@ JNIEXPORT void JNICALL Java_com_defold_push_PushJNI_onLocalMessage(JNIEnv* env, 
     cmd.m_Command = dmPush::COMMAND_TYPE_LOCAL_MESSAGE_RESULT;
     cmd.m_Result = strdup(j);
     cmd.m_WasActivated = wasActivated;
+    cmd.m_Id = id;
     dmPush::QueuePush(&g_Push.m_CommandQueue, &cmd);
     if (j)
     {

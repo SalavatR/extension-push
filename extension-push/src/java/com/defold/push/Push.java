@@ -45,12 +45,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.RemoteMessage;
-
 public class Push {
 
     public static final String TAG = "push";
@@ -179,7 +173,6 @@ public class Push {
             @Override
             public void run() {
                 try {
-                    startFirebase(activity);
                     loadSavedLocalMessages(activity);
                     loadSavedMessages(activity);
                     // Ensure that stored notifications are sent to the listener
@@ -188,6 +181,8 @@ public class Push {
                     // before register() but also in the case when the application
                     // was started from a notification.
                     flushStoredNotifications();
+
+                    sendRegistrationResult(null, null);
                 } catch (Throwable e) {
                     Log.e(TAG, "Failed to register", e);
                     sendRegistrationResult(null, e.getLocalizedMessage());
@@ -401,55 +396,6 @@ public class Push {
             instance = new Push();
         }
         return instance;
-    }
-
-    private void registerFirebase(Activity activity) {
-        if (this.applicationIdFCM == null || this.applicationIdFCM == "") {
-            Log.w(Push.TAG, "Fcm Application Id must be set.");
-            return;
-        }
-        if (this.senderIdFCM == null || this.senderIdFCM == "") {
-            Log.w(Push.TAG, "Gcm Sender Id must be set.");
-            return;
-        }
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            sendRegistrationResult(null, task.getException().getLocalizedMessage());
-                            return;
-                        }
-
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
-                        sendToken(token);
-                    }
-                });
-    }
-
-    public void sendToken(String token) {
-        sendRegistrationResult(token, null);
-    }
-
-    private boolean checkPlayServices(Activity activity) {
-        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            Log.i(TAG, "This device is not supported. Remote push notifications are not supported");
-            return false;
-        }
-        return true;
-    }
-
-    private void startFirebase(Activity activity) {
-        if (checkPlayServices(activity)) {
-            registerFirebase(activity);
-        } else {
-            Log.w(TAG, "No valid Google Play Services APK found.");
-            sendRegistrationResult(null, "Google Play Services not available.");
-        }
     }
 
     private void sendRegistrationResult(String regid, String errorMessage) {

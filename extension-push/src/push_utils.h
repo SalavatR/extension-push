@@ -32,6 +32,7 @@ namespace dmPush
 	    const char* m_Result;
 	    const char* m_Error;
 	    bool     	m_WasActivated;
+	    int32_t  	m_Id;
 	};
 
 	struct CommandQueue

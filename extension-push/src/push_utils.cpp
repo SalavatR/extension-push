@@ -98,8 +98,9 @@ static void HandlePushMessageResult(const dmPush::Command* cmd, bool local)
 
         lua_pushnumber(L, local ? dmPush::ORIGIN_LOCAL : dmPush::ORIGIN_REMOTE);
         lua_pushboolean(L, cmd->m_WasActivated);
+        lua_pushnumber(L, local ? cmd->m_Id : 0);
 
-        int ret = dmScript::PCall(L, 4, 0);
+        int ret = dmScript::PCall(L, 5, 0);
         (void)ret;
     } else {
         lua_pop(L, 2);
